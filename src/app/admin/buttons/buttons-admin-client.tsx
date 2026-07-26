@@ -15,6 +15,7 @@ export function ButtonsAdminClient() {
   const [buttons, setButtons] = useState<ButtonRow[]>([])
   const [loading, setLoading] = useState(true)
   const [namesInput, setNamesInput] = useState('')
+  const [zipLoading, setZipLoading] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -44,6 +45,38 @@ export function ButtonsAdminClient() {
 
     setNamesInput('')
     await load()
+  }
+
+  async function downloadPdf() {
+    const res = await fetch('/api/admin/buttons/pdf')
+    if (!res.ok) return
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'qr_buttons.pdf'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function downloadZip() {
+    setZipLoading(true)
+    try {
+      const res = await fetch('/api/admin/buttons/zip')
+      if (!res.ok) {
+        setZipLoading(false)
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'qr_buttons.zip'
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setZipLoading(false)
+    }
   }
 
   const unusedCount = buttons.filter((b) => b.status === 'unused').length
@@ -76,6 +109,23 @@ export function ButtonsAdminClient() {
         </button>
       </div>
 
+      <div className="mt-4">
+        <button
+          onClick={downloadZip}
+          disabled={zipLoading || buttons.length === 0}
+          className="px-4 py-2 border rounded disabled:opacity-50"
+        >
+          {zipLoading ? 'ZIP作成中...' : 'QRコード一括ダウンロード(ZIP)'}
+        </button>
+        <button
+          onClick={downloadPdf}
+          disabled={buttons.length === 0}
+          className="ml-2 px-4 py-2 border rounded disabled:opacity-50"
+        >
+          QRコード一括ダウンロード(PDF・A4/6面)
+        </button>
+      </div>
+
       <table className="w-full mt-6">
         <thead>
           <tr className="text-left border-b">
@@ -84,6 +134,7 @@ export function ButtonsAdminClient() {
             <th className="py-2">状態</th>
             <th className="py-2">押したプレイヤー</th>
             <th className="py-2">URL</th>
+            <th className="py-2">QR</th>
           </tr>
         </thead>
         <tbody>
@@ -96,6 +147,20 @@ export function ButtonsAdminClient() {
               </td>
               <td className="py-2">{b.players?.name ?? '-'}</td>
               <td className="py-2 text-sm text-gray-500">/button/{b.code}</td>
+              <td className="py-2 space-x-2 text-sm">
+                <a
+                  href={`/api/admin/buttons/${b.id}/qr?format=png`}
+                  className="underline"
+                >
+                  PNG
+                </a>
+                <a
+                  href={`/api/admin/buttons/${b.id}/qr?format=svg`}
+                  className="underline"
+                >
+                  SVG
+                </a>
+              </td>
             </tr>
           ))}
         </tbody>

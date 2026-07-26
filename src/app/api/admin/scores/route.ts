@@ -2,6 +2,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdmin } from '@/lib/require-admin'
 
+export async function GET() {
+  const admin = await requireAdmin()
+  if (!admin) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  }
+
+  const supabase = createAdminClient()
+
+  const { data: event } = await supabase
+    .from('events')
+    .select('id')
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (!event) {
+    return NextResponse.json({ history: [] })
+  }
+
+  const { data: history } = await supabase
+    .from('scores')
+    .select('id, delta, reason, admin_email, created_at, players:player_id(name)')
+    .eq('event_id', event.id)
+    .order('created_at', { ascending: false })
+    .limit(50)
+
+  return NextResponse.json({ history: history ?? [] })
+}
+
 export async function POST(request: NextRequest) {
   const admin = await requireAdmin()
   if (!admin) {
@@ -35,6 +64,7 @@ export async function POST(request: NextRequest) {
     delta,
     reason,
     admin_id: admin.userId,
+    admin_email: admin.email,
   })
 
   if (insertError) {
