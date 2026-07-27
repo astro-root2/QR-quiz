@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireOwner } from '@/lib/require-owner'
 import { ButtonsAdminClient } from './buttons-admin-client'
@@ -15,9 +16,19 @@ export default async function EventAdminButtonsPage({
   }
 
   return (
-    <main className="min-h-screen bg-white dark:bg-black p-8">
-      <h1 className="text-xl font-bold">ボタン管理</h1>
-      <ButtonsAdminClient eventId={eventId} />
+    <main className="qz-page">
+      <div className="qz-topbar">
+        <div>
+          <p className="qz-eyebrow">BUTTONS</p>
+          <h1 className="qz-h1">ボタン管理</h1>
+        </div>
+        <Link href={`/e/${eventId}/admin/dashboard`} className="qz-btn qz-btn-ghost">
+          ダッシュボードへ
+        </Link>
+      </div>
+      <div className="qz-shell-wide w-full">
+        <ButtonsAdminClient eventId={eventId} />
+      </div>
     </main>
   )
 }

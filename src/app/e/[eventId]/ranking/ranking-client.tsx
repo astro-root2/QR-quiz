@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 type RankingRow = { id: string; name: string; total: number }
@@ -8,6 +8,8 @@ type RankingRow = { id: string; name: string; total: number }
 export function RankingClient({ eventId }: { eventId: string }) {
   const [ranking, setRanking] = useState<RankingRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [flashIds, setFlashIds] = useState<Set<string>>(new Set())
+  const prevTotals = useRef<Map<string, number>>(new Map())
 
   const loadRanking = useCallback(async () => {
     const supabase = createClient()
@@ -31,6 +33,19 @@ export function RankingClient({ eventId }: { eventId: string }) {
     const result = (players ?? [])
       .map((p) => ({ id: p.id, name: p.name, total: totals.get(p.id) ?? 0 }))
       .sort((a, b) => b.total - a.total)
+
+    const changed = new Set<string>()
+    for (const row of result) {
+      const prev = prevTotals.current.get(row.id)
+      if (prev !== undefined && prev !== row.total) {
+        changed.add(row.id)
+      }
+    }
+    if (changed.size > 0) {
+      setFlashIds(changed)
+      setTimeout(() => setFlashIds(new Set()), 900)
+    }
+    prevTotals.current = totals
 
     setRanking(result)
     setLoading(false)
@@ -61,17 +76,25 @@ export function RankingClient({ eventId }: { eventId: string }) {
   }, [eventId, loadRanking])
 
   if (loading) {
-    return <p className="mt-4 text-gray-500">読み込み中</p>
+    return <p className="qz-muted mt-6 text-center">読み込み中</p>
+  }
+
+  if (ranking.length === 0) {
+    return <p className="qz-muted mt-6 text-center">まだ参加者がいない</p>
   }
 
   return (
-    <ol className="mt-4 space-y-2">
+    <ol className="mt-6 flex flex-col gap-2">
       {ranking.map((r, i) => (
-        <li key={r.id} className="flex justify-between border-b py-2">
-          <span>
-            {i + 1}. {r.name}
-          </span>
-          <span className="font-bold">{r.total}</span>
+        <li
+          key={r.id}
+          className={`qz-rank-row ${i === 0 ? 'is-top' : ''} ${
+            flashIds.has(r.id) ? 'qz-flash-pulse' : ''
+          }`}
+        >
+          <span className="qz-rank-num">{String(i + 1).padStart(2, '0')}</span>
+          <span className="truncate">{r.name}</span>
+          <span className="qz-rank-score">{r.total}</span>
         </li>
       ))}
     </ol>

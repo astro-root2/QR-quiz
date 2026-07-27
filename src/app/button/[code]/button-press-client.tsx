@@ -5,7 +5,7 @@ import { useState } from 'react'
 type PressState =
   | { status: 'idle' }
   | { status: 'pressing' }
-  | { status: 'success'; locationName: string }
+  | { status: 'success'; locationName: string; usedAt: string }
   | { status: 'error'; message: string }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -15,6 +15,17 @@ const ERROR_MESSAGES: Record<string, string> = {
   not_registered: 'プレイヤー登録が必要',
   invalid_player: 'プレイヤー情報が確認できない',
   server_error: 'エラーが発生した。もう一度試すこと',
+}
+
+// サーバー(DB)が実際にロックした瞬間を表示する。
+// 通信の往復時間ではなく、判定そのものに使われた時刻。
+function formatCaptureTime(isoString: string) {
+  const date = new Date(isoString)
+  const h = String(date.getHours()).padStart(2, '0')
+  const m = String(date.getMinutes()).padStart(2, '0')
+  const s = String(date.getSeconds()).padStart(2, '0')
+  const ms = String(date.getMilliseconds()).padStart(3, '0')
+  return `${h}:${m}:${s}.${ms}`
 }
 
 export function ButtonPressClient({ code }: { code: string }) {
@@ -34,28 +45,40 @@ export function ButtonPressClient({ code }: { code: string }) {
       return
     }
 
-    setState({ status: 'success', locationName: data.location_name })
+    setState({ status: 'success', locationName: data.location_name, usedAt: data.used_at })
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-black p-8">
-      {state.status === 'success' ? (
-        <div className="text-center">
-          <p className="text-3xl font-bold text-green-500">解答権を獲得した</p>
-          <p className="mt-2 text-gray-500">{state.locationName}</p>
-        </div>
-      ) : (
-        <button
-          onClick={handlePress}
-          disabled={state.status === 'pressing'}
-          className="h-48 w-48 rounded-full bg-red-500 text-white text-2xl font-bold active:scale-95 disabled:opacity-50"
-        >
-          {state.status === 'pressing' ? '送信中' : '押す'}
-        </button>
-      )}
-      {state.status === 'error' && (
-        <p className="mt-4 text-red-500">{state.message}</p>
-      )}
+    <main className="qz-page items-center justify-center">
+      <div className="qz-shell text-center flex flex-col items-center">
+        {state.status === 'success' ? (
+          <div className="qz-capture">
+            <p className="qz-eyebrow">解答権 獲得</p>
+            <p className="qz-capture-time mt-2">{formatCaptureTime(state.usedAt)}</p>
+            <p className="qz-muted mt-3">{state.locationName}</p>
+          </div>
+        ) : (
+          <>
+            <p className="qz-eyebrow mb-2">タップして解答権を取得</p>
+            <div className="qz-buzzer-wrap">
+              <button
+                onClick={handlePress}
+                disabled={state.status === 'pressing'}
+                className="qz-buzzer"
+              >
+                {state.status === 'pressing' ? '送信中' : '押す'}
+              </button>
+            </div>
+          </>
+        )}
+
+        {state.status === 'error' && (
+          <p className="mt-4" style={{ color: 'var(--hot)' }}>
+            {state.message}
+          </p>
+        )}
+      </div>
     </main>
   )
 }
+

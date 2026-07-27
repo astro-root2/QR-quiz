@@ -101,105 +101,135 @@ export function ButtonsAdminClient({ eventId }: { eventId: string }) {
   const usedCount = buttons.filter((b) => b.status === 'used').length
 
   if (loading) {
-    return <p className="text-gray-500">読み込み中</p>
+    return <p className="qz-muted mt-6">読み込み中</p>
   }
 
   return (
-    <div>
-      <div className="mt-4 flex gap-6 text-sm text-gray-500">
-        <span>未使用: {unusedCount}</span>
-        <span>使用済み: {usedCount}</span>
-        <span>合計: {buttons.length}</span>
+    <div className="mt-6 flex flex-col gap-6">
+      <div className="flex gap-6 qz-mono text-sm">
+        <span className="qz-muted">
+          未使用 <span className="text-[var(--text)] font-bold">{unusedCount}</span>
+        </span>
+        <span className="qz-muted">
+          使用済み <span className="text-[var(--text)] font-bold">{usedCount}</span>
+        </span>
+        <span className="qz-muted">
+          合計 <span className="text-[var(--text)] font-bold">{buttons.length}</span>
+        </span>
       </div>
 
-      <div className="mt-6">
+      <div className="qz-card">
+        <label className="qz-label">配置場所名を1行ずつ入力（追加で一括生成）</label>
         <textarea
           value={namesInput}
           onChange={(e) => setNamesInput(e.target.value)}
-          placeholder={'配置場所名を1行ずつ入力（複数行で一括生成）\n例:\n受付前\nステージ横\n入口A'}
-          className="w-full h-32 border rounded p-2 bg-transparent"
+          placeholder={'例:\n受付前\nステージ横\n入口A'}
+          className="qz-input mt-2 h-28 resize-none"
         />
-        <button
-          onClick={createButtons}
-          className="mt-2 px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded"
-        >
-          ボタンを生成
+        <button onClick={createButtons} className="qz-btn qz-btn-primary mt-3">
+          追加で生成
         </button>
       </div>
 
-      <div className="mt-4">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={downloadZip}
           disabled={zipLoading || buttons.length === 0}
-          className="px-4 py-2 border rounded disabled:opacity-50"
+          className="qz-btn qz-btn-ghost"
         >
-          {zipLoading ? 'ZIP作成中...' : 'QRコード一括ダウンロード(ZIP)'}
+          {zipLoading ? 'ZIP作成中...' : 'QR一括ダウンロード(ZIP)'}
         </button>
         <button
           onClick={downloadPdf}
           disabled={buttons.length === 0}
-          className="ml-2 px-4 py-2 border rounded disabled:opacity-50"
+          className="qz-btn qz-btn-ghost"
         >
-          QRコード一括ダウンロード(PDF・A4/6面)
+          QR一括ダウンロード(PDF・A4/6面)
         </button>
       </div>
 
-      <table className="w-full mt-6">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2">配置場所</th>
-            <th className="py-2">コード</th>
-            <th className="py-2">状態</th>
-            <th className="py-2">押したプレイヤー</th>
-            <th className="py-2">URL</th>
-            <th className="py-2">QR</th>
-          </tr>
-        </thead>
-        <tbody>
-          {buttons.map((b) => (
-            <tr key={b.id} className="border-b">
-              <td className="py-2">
-                {editingId === b.id ? (
-                  <input
-                    autoFocus
-                    value={editingValue}
-                    onChange={(e) => setEditingValue(e.target.value)}
-                    onBlur={() => renameButton(b.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') renameButton(b.id)
-                      if (e.key === 'Escape') setEditingId(null)
-                    }}
-                    className="border rounded px-2 py-1 bg-transparent w-32"
-                  />
-                ) : (
-                  <button
-                    onClick={() => {
-                      setEditingId(b.id)
-                      setEditingValue(b.location_name)
-                    }}
-                    className="underline decoration-dotted text-left"
-                    title="クリックして名前を変更"
-                  >
-                    {b.location_name}
-                  </button>
-                )}
-              </td>
-              <td className="py-2 font-mono text-sm">{b.code}</td>
-              <td className="py-2">{b.status === 'used' ? '使用済み' : '未使用'}</td>
-              <td className="py-2">{b.players?.name ?? '-'}</td>
-              <td className="py-2 text-sm text-gray-500">/button/{b.code}</td>
-              <td className="py-2 space-x-2 text-sm">
-                <a href={`/api/e/${eventId}/buttons/${b.id}/qr?format=png`} className="underline">
-                  PNG
-                </a>
-                <a href={`/api/e/${eventId}/buttons/${b.id}/qr?format=svg`} className="underline">
-                  SVG
-                </a>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[40rem]">
+          <thead>
+            <tr className="text-left qz-muted border-b border-[var(--line)]">
+              <th className="py-2 pr-3 font-normal">配置場所</th>
+              <th className="py-2 pr-3 font-normal">コード</th>
+              <th className="py-2 pr-3 font-normal">状態</th>
+              <th className="py-2 pr-3 font-normal">押したプレイヤー</th>
+              <th className="py-2 pr-3 font-normal">URL</th>
+              <th className="py-2 font-normal">QR</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {buttons.map((b) => (
+              <tr key={b.id} className="border-b border-[var(--line)]">
+                <td className="py-2 pr-3">
+                  {editingId === b.id ? (
+                    <input
+                      autoFocus
+                      value={editingValue}
+                      onChange={(e) => setEditingValue(e.target.value)}
+                      onBlur={() => renameButton(b.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') renameButton(b.id)
+                        if (e.key === 'Escape') setEditingId(null)
+                      }}
+                      className="qz-input py-1 w-32"
+                    />
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setEditingId(b.id)
+                        setEditingValue(b.location_name)
+                      }}
+                      className="qz-link text-left"
+                      title="クリックして名前を変更"
+                    >
+                      {b.location_name}
+                    </button>
+                  )}
+                </td>
+                <td className="py-2 pr-3 qz-mono text-xs qz-muted">{b.code}</td>
+                <td className="py-2 pr-3">
+                  <span
+                    className="qz-mono text-xs px-2 py-0.5 rounded-full border"
+                    style={
+                      b.status === 'used'
+                        ? { borderColor: 'var(--hot-dim)', color: 'var(--hot)' }
+                        : { borderColor: 'var(--buzzer-dim)', color: 'var(--buzzer)' }
+                    }
+                  >
+                    {b.status === 'used' ? '使用済み' : '未使用'}
+                  </span>
+                </td>
+                <td className="py-2 pr-3">{b.players?.name ?? '-'}</td>
+                <td className="py-2 pr-3 qz-muted text-xs">/button/{b.code}</td>
+                <td className="py-2 space-x-2 text-xs">
+                  <a
+                    href={`/api/e/${eventId}/buttons/${b.id}/qr?format=png`}
+                    className="qz-link"
+                  >
+                    PNG
+                  </a>
+                  <a
+                    href={`/api/e/${eventId}/buttons/${b.id}/qr?format=svg`}
+                    className="qz-link"
+                  >
+                    SVG
+                  </a>
+                </td>
+              </tr>
+            ))}
+            {buttons.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-4 qz-muted text-center">
+                  まだボタンがない
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

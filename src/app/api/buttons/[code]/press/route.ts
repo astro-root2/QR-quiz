@@ -35,7 +35,7 @@ export async function POST(
     .eq('code', code)
     .eq('status', 'unused')
     .eq('event_id', player.event_id)
-    .select('id, location_name')
+    .select('id, location_name, used_at')
     .maybeSingle()
 
   if (buttonError) {
@@ -68,5 +68,7 @@ export async function POST(
     success: true,
     location_name: button.location_name,
     player_name: player.name,
+    used_at: button.used_at,
   })
 }
+

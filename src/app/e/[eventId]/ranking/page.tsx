@@ -8,9 +8,12 @@ export default async function RankingPage({
   const { eventId } = await params
 
   return (
-    <main className="min-h-screen bg-white dark:bg-black p-8">
-      <h1 className="text-xl font-bold">ランキング</h1>
-      <RankingClient eventId={eventId} />
+    <main className="qz-page">
+      <div className="qz-shell w-full">
+        <p className="qz-eyebrow">LIVE RANKING</p>
+        <h1 className="qz-h1 mt-1">ランキング</h1>
+        <RankingClient eventId={eventId} />
+      </div>
     </main>
   )
 }

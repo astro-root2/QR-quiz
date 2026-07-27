@@ -2,23 +2,32 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-black p-8">
-      <h1 className="text-2xl font-bold text-center">
-        QRコード早押しクイズシステム
-      </h1>
-      <p className="mt-4 text-center text-gray-500">
-        主催者は自分のアカウントで複数の大会を作成できる。
-      </p>
-      <div className="mt-6 flex gap-4">
-        <Link
-          href="/admin/login"
-          className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded"
-        >
-          主催者ログイン
-        </Link>
-        <Link href="/admin/signup" className="px-4 py-2 border rounded">
-          新規登録
-        </Link>
+    <main className="qz-page items-center justify-center">
+      <div className="qz-shell text-center flex flex-col items-center">
+        <p className="qz-eyebrow">QRコード解答権システム</p>
+        <h1 className="qz-h1 mt-3">
+          会場のどこかにある
+          <br />
+          ボタンを、いちばん早く。
+        </h1>
+        <p className="qz-muted mt-4 leading-relaxed">
+          QRコードを踏んだ瞬間がそのまま解答権になる早押しクイズ運営ツール。
+          <br />
+          主催者は大会を作り、参加者はスマホで名前を登録するだけ。
+        </p>
+
+        <div className="mt-8 flex gap-3 flex-wrap justify-center">
+          <Link href="/admin/signup" className="qz-btn qz-btn-primary">
+            主催者として始める
+          </Link>
+          <Link href="/admin/login" className="qz-btn qz-btn-ghost">
+            ログイン
+          </Link>
+        </div>
+
+        <div className="qz-mono text-xs qz-muted mt-10 tracking-wide">
+          01 大会を作る → 02 QRを配置 → 03 早押し開始
+        </div>
       </div>
     </main>
   )

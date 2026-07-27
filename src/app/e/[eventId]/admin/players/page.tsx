@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireOwner } from '@/lib/require-owner'
 import { PlayersAdminClient } from './players-admin-client'
@@ -15,9 +16,19 @@ export default async function EventAdminPlayersPage({
   }
 
   return (
-    <main className="min-h-screen bg-white dark:bg-black p-8">
-      <h1 className="text-xl font-bold">プレイヤー管理</h1>
-      <PlayersAdminClient eventId={eventId} />
+    <main className="qz-page">
+      <div className="qz-topbar">
+        <div>
+          <p className="qz-eyebrow">SCORING</p>
+          <h1 className="qz-h1">プレイヤー管理</h1>
+        </div>
+        <Link href={`/e/${eventId}/admin/dashboard`} className="qz-btn qz-btn-ghost">
+          ダッシュボードへ
+        </Link>
+      </div>
+      <div className="qz-shell-wide w-full">
+        <PlayersAdminClient eventId={eventId} />
+      </div>
     </main>
   )
 }

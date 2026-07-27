@@ -9,38 +9,49 @@ export default async function AdminLoginPage({
   const params = await searchParams
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white dark:bg-black p-8">
-      <form action={signIn} className="w-full max-w-sm space-y-4">
-        <h1 className="text-xl font-bold">主催者ログイン</h1>
-        {params.error === 'invalid_credentials' && (
-          <p className="text-red-500 text-sm">メールアドレスまたはパスワードが違う</p>
-        )}
-        <input
-          name="email"
-          type="email"
-          required
-          placeholder="メールアドレス"
-          className="w-full border rounded px-3 py-2 bg-transparent"
-        />
-        <input
-          name="password"
-          type="password"
-          required
-          placeholder="パスワード"
-          className="w-full border rounded px-3 py-2 bg-transparent"
-        />
-        <button
-          type="submit"
-          className="w-full bg-black text-white dark:bg-white dark:text-black rounded px-3 py-2"
-        >
-          ログイン
-        </button>
-        <p className="text-sm text-gray-500">
-          アカウントがない場合は
-          <Link href="/admin/signup" className="underline ml-1">
-            新規登録
-          </Link>
-        </p>
+    <main className="qz-page items-center justify-center">
+      <form action={signIn} className="qz-shell w-full">
+        <p className="qz-eyebrow text-center">ORGANIZER</p>
+        <h1 className="qz-h1 mt-1 text-center">主催者ログイン</h1>
+
+        <div className="qz-card mt-6 flex flex-col gap-4">
+          {params.error === 'invalid_credentials' && (
+            <p style={{ color: 'var(--hot)' }} className="text-sm">
+              メールアドレスまたはパスワードが違う
+            </p>
+          )}
+
+          <div className="qz-field">
+            <label className="qz-label" htmlFor="email">
+              メールアドレス
+            </label>
+            <input id="email" name="email" type="email" required className="qz-input" />
+          </div>
+
+          <div className="qz-field">
+            <label className="qz-label" htmlFor="password">
+              パスワード
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="qz-input"
+            />
+          </div>
+
+          <button type="submit" className="qz-btn qz-btn-primary w-full">
+            ログイン
+          </button>
+
+          <p className="qz-muted text-sm text-center">
+            アカウントがない場合は{' '}
+            <Link href="/admin/signup" className="qz-link">
+              新規登録
+            </Link>
+          </p>
+        </div>
       </form>
     </main>
   )

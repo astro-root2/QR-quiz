@@ -25,35 +25,51 @@ export default async function RegisterPage({
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white dark:bg-black p-8">
-      <form action={registerPlayer} className="w-full max-w-sm space-y-4">
-        <h1 className="text-xl font-bold">{event.name}</h1>
-        <p className="text-gray-500">プレイヤー登録</p>
-        {sp.error === 'name_required' && (
-          <p className="text-red-500 text-sm">名前を入力すること</p>
-        )}
-        {sp.error === 'event_not_found' && (
-          <p className="text-red-500 text-sm">この大会は見つからない</p>
-        )}
-        {sp.error === 'insert_failed' && (
-          <p className="text-red-500 text-sm">登録に失敗した。もう一度試すこと</p>
-        )}
-        <input type="hidden" name="event_id" value={eventId} />
-        <input type="hidden" name="redirect" value={redirectTo} />
-        <input
-          name="name"
-          type="text"
-          required
-          maxLength={30}
-          placeholder="プレイヤー名"
-          className="w-full border rounded px-3 py-2 bg-transparent"
-        />
-        <button
-          type="submit"
-          className="w-full bg-black text-white dark:bg-white dark:text-black rounded px-3 py-2"
-        >
-          登録
-        </button>
+    <main className="qz-page items-center justify-center">
+      <form action={registerPlayer} className="qz-shell w-full">
+        <p className="qz-eyebrow text-center">参加登録</p>
+        <h1 className="qz-h1 mt-1 text-center">{event.name}</h1>
+
+        <div className="qz-card mt-6 flex flex-col gap-4">
+          {sp.error === 'name_required' && (
+            <p style={{ color: 'var(--hot)' }} className="text-sm">
+              名前を入力すること
+            </p>
+          )}
+          {sp.error === 'event_not_found' && (
+            <p style={{ color: 'var(--hot)' }} className="text-sm">
+              この大会は見つからない
+            </p>
+          )}
+          {sp.error === 'insert_failed' && (
+            <p style={{ color: 'var(--hot)' }} className="text-sm">
+              登録に失敗した。もう一度試すこと
+            </p>
+          )}
+
+          <input type="hidden" name="event_id" value={eventId} />
+          <input type="hidden" name="redirect" value={redirectTo} />
+
+          <div className="qz-field">
+            <label className="qz-label" htmlFor="name">
+              プレイヤー名
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              maxLength={30}
+              placeholder="例: たなか"
+              className="qz-input"
+              autoFocus
+            />
+          </div>
+
+          <button type="submit" className="qz-btn qz-btn-primary w-full">
+            登録して参加する
+          </button>
+        </div>
       </form>
     </main>
   )

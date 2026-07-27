@@ -31,69 +31,92 @@ export default async function AdminEventsPage({
     .order('created_at', { ascending: false })
 
   return (
-    <main className="min-h-screen bg-white dark:bg-black p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">マイイベント</h1>
-        <form action={signOut}>
-          <button type="submit" className="text-sm underline">
-            ログアウト
-          </button>
-        </form>
+    <main className="qz-page">
+      <div className="qz-topbar">
+        <div>
+          <p className="qz-eyebrow">ORGANIZER</p>
+          <h1 className="qz-h1">マイイベント</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="qz-muted text-sm hidden sm:inline">{user.email}</span>
+          <form action={signOut}>
+            <button type="submit" className="qz-btn qz-btn-ghost">
+              ログアウト
+            </button>
+          </form>
+        </div>
       </div>
-      <p className="mt-4 text-gray-500">ログイン中: {user.email}</p>
 
-      {params.error && (
-        <p className="mt-4 text-red-500 text-sm">
-          {ERROR_MESSAGES[params.error] ?? params.error}
-        </p>
-      )}
-
-      <form action={createEvent} className="mt-6 flex flex-wrap gap-2 max-w-md items-start">
-        <input
-          name="name"
-          type="text"
-          required
-          maxLength={50}
-          placeholder="新しい大会名（例: 第3回社内クイズ大会）"
-          className="flex-1 min-w-[200px] border rounded px-3 py-2 bg-transparent"
-        />
-        <input
-          name="button_count"
-          type="number"
-          min={0}
-          max={200}
-          defaultValue={10}
-          className="w-24 border rounded px-3 py-2 bg-transparent"
-          title="ボタン数（後から個別に名前を変更できる）"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded whitespace-nowrap"
-        >
-          作成
-        </button>
-      </form>
-      <p className="text-xs text-gray-500 mt-1 max-w-md">
-        右の数字はボタン数。作成時に「ボタン1」「ボタン2」…として自動生成される。名前はあとで管理画面から変更できる。
-      </p>
-
-      <ul className="mt-8 space-y-3 max-w-md">
-        {(events ?? []).map((e) => (
-          <li key={e.id} className="border rounded p-4 flex items-center justify-between">
-            <div>
-              <Link href={`/e/${e.id}/admin/dashboard`} className="underline font-bold">
-                {e.name}
-              </Link>
-              <p className="text-sm text-gray-500 mt-1">
-                {e.status === 'active' ? '開催中' : 'アーカイブ済み'}
-              </p>
-            </div>
-          </li>
-        ))}
-        {(events ?? []).length === 0 && (
-          <p className="text-gray-500">まだ大会がない。上のフォームから作成すること。</p>
+      <div className="qz-shell-wide w-full">
+        {params.error && (
+          <p style={{ color: 'var(--hot)' }} className="text-sm mb-4">
+            {ERROR_MESSAGES[params.error] ?? params.error}
+          </p>
         )}
-      </ul>
+
+        <form
+          action={createEvent}
+          className="qz-card flex flex-wrap gap-3 items-end"
+        >
+          <div className="qz-field flex-1 min-w-[14rem]">
+            <label className="qz-label" htmlFor="name">
+              新しい大会名
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              maxLength={50}
+              placeholder="例: 第3回社内クイズ大会"
+              className="qz-input"
+            />
+          </div>
+          <div className="qz-field w-28">
+            <label className="qz-label" htmlFor="button_count">
+              ボタン数
+            </label>
+            <input
+              id="button_count"
+              name="button_count"
+              type="number"
+              min={0}
+              max={200}
+              defaultValue={10}
+              className="qz-input qz-mono"
+            />
+          </div>
+          <button type="submit" className="qz-btn qz-btn-primary">
+            大会を作成
+          </button>
+          <p className="qz-muted text-xs w-full">
+            「ボタン1」「ボタン2」…として自動生成される。名前はあとで管理画面から変更できる。
+          </p>
+        </form>
+
+        <div className="mt-8 flex flex-col gap-3">
+          {(events ?? []).map((e) => (
+            <Link
+              key={e.id}
+              href={`/e/${e.id}/admin/dashboard`}
+              className="qz-panel-row hover:border-[var(--buzzer-dim)] transition-colors"
+            >
+              <div>
+                <p className="qz-h2">{e.name}</p>
+                <p className="qz-muted text-xs mt-1">
+                  {e.status === 'active' ? '開催中' : 'アーカイブ済み'}
+                </p>
+              </div>
+              <span className="qz-muted text-sm">管理画面へ →</span>
+            </Link>
+          ))}
+          {(events ?? []).length === 0 && (
+            <p className="qz-muted text-center py-8">
+              まだ大会がない。上のフォームから作成すること。
+            </p>
+          )}
+        </div>
+      </div>
     </main>
   )
 }

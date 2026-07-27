@@ -1,26 +1,391 @@
 @import "tailwindcss";
 
+/*
+  QRコード早押しクイズ — デザイントークン
+
+  コンセプト: 深夜のイベント会場で光る「解答権ボタン」と、
+  試合を裁定するスコアボードの緊張感。
+  参加者はスマホで、主催者はノートPCで見る前提のダーク基調。
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #10121f;
+  --panel: #191c2e;
+  --panel-raised: #232748;
+  --line: #2e3358;
+
+  --buzzer: #ffb020;
+  --buzzer-dim: #b9861f;
+  --hot: #ff4d6d;
+  --hot-dim: #b23652;
+
+  --text: #f4f5fb;
+  --text-muted: #8c91b8;
+  --text-faint: #565b82;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-line: var(--line);
+  --color-buzzer: var(--buzzer);
+  --color-buzzer-dim: var(--buzzer-dim);
+  --color-hot: var(--hot);
+  --color-hot-dim: var(--hot-dim);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+
+  --font-display: var(--font-zen-kaku), sans-serif;
+  --font-body: var(--font-noto-jp), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--line);
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-body);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 176, 32, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(255, 77, 109, 0.06), transparent);
+  background-attachment: fixed;
 }
+
+::selection {
+  background: var(--buzzer);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--buzzer);
+  outline-offset: 2px;
+}
+
+/* ===== 見出し・ラベル類 ===== */
+
+.qz-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.qz-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.25;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.qz-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--text);
+}
+
+.qz-muted {
+  color: var(--text-muted);
+}
+
+/* ===== レイアウト ===== */
+
+.qz-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.qz-shell {
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.qz-shell-wide {
+  width: 100%;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.qz-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+/* ===== カード・パネル ===== */
+
+.qz-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+}
+
+.qz-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+/* ===== フォーム部品 ===== */
+
+.qz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.qz-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.qz-input {
+  width: 100%;
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: border-color 0.15s ease;
+}
+
+.qz-input:focus {
+  border-color: var(--buzzer);
+}
+
+.qz-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* ===== ボタン ===== */
+
+.qz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 0.65rem;
+  padding: 0.75rem 1.4rem;
+  transition: transform 0.1s ease, opacity 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.qz-btn:active {
+  transform: scale(0.97);
+}
+
+.qz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.qz-btn-primary {
+  background: var(--buzzer);
+  color: var(--ink);
+}
+
+.qz-btn-primary:hover:not(:disabled) {
+  background: #ffc44d;
+}
+
+.qz-btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.qz-btn-ghost:hover:not(:disabled) {
+  border-color: var(--text-faint);
+}
+
+.qz-btn-danger {
+  background: var(--hot);
+  color: var(--ink);
+}
+
+.qz-link {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--text-faint);
+  text-underline-offset: 3px;
+}
+
+.qz-link:hover {
+  text-decoration-color: var(--buzzer);
+}
+
+/* ===== スコアボード / 数値表示 ===== */
+
+.qz-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.qz-rank-row {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.qz-rank-row.is-top {
+  border-color: var(--buzzer-dim);
+  background: linear-gradient(180deg, rgba(255, 176, 32, 0.08), transparent);
+}
+
+.qz-rank-num {
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  font-size: 0.95rem;
+}
+
+.qz-rank-score {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== 解答権ボタン(バズ) ===== */
+
+.qz-buzzer-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+
+.qz-buzzer {
+  position: relative;
+  height: min(58vw, 15rem);
+  width: min(58vw, 15rem);
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, #ffd27a, var(--buzzer) 60%, var(--buzzer-dim) 100%);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 5vw, 1.6rem);
+  border: none;
+  box-shadow:
+    0 0 0 6px rgba(255, 176, 32, 0.12),
+    0 18px 40px -12px rgba(255, 176, 32, 0.55),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.18);
+  animation: qz-buzzer-glow 2.4s ease-in-out infinite;
+  transition: transform 0.08s ease;
+}
+
+.qz-buzzer:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.qz-buzzer:disabled {
+  opacity: 0.55;
+  animation: none;
+}
+
+@keyframes qz-buzzer-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 6px rgba(255, 176, 32, 0.12),
+      0 18px 40px -12px rgba(255, 176, 32, 0.55),
+      inset 0 -6px 12px rgba(0, 0, 0, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px rgba(255, 176, 32, 0.18),
+      0 22px 48px -10px rgba(255, 176, 32, 0.7),
+      inset 0 -6px 12px rgba(0, 0, 0, 0.18);
+  }
+}
+
+.qz-capture {
+  text-align: center;
+  animation: qz-flash-in 0.4s ease-out;
+}
+
+.qz-capture-time {
+  font-family: var(--font-mono);
+  font-size: clamp(2.2rem, 10vw, 3.2rem);
+  font-weight: 700;
+  color: var(--hot);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@keyframes qz-flash-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.qz-flash-pulse {
+  animation: qz-row-flash 0.9s ease-out;
+}
+
+@keyframes qz-row-flash {
+  0% {
+    background: rgba(255, 176, 32, 0.35);
+  }
+  100% {
+    background: var(--panel);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qz-buzzer {
+    animation: none;
+  }
+  .qz-capture {
+    animation: none;
+  }
+  .qz-flash-pulse {
+    animation: none;
+  }
+}
+
