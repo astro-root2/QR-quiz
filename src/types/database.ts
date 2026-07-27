@@ -4,6 +4,7 @@ export interface Event {
   id: string
   name: string
   status: 'active' | 'archived'
+  owner_id: string | null
   created_at: string
 }
 
@@ -36,8 +37,4 @@ export interface Score {
   created_at: string
 }
 
-export interface Admin {
-  id: string
-  email: string
-  role: 'admin'
-}
+

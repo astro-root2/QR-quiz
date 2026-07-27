@@ -25,10 +25,12 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
-  const isLoginPath = request.nextUrl.pathname === '/admin/login'
+  const pathname = request.nextUrl.pathname
+  const isPublicAuthPath = pathname === '/admin/login' || pathname === '/admin/signup'
+  const isAccountAdminPath = pathname.startsWith('/admin') && !isPublicAuthPath
+  const isEventAdminPath = /^\/e\/[^/]+\/admin(\/|$)/.test(pathname)
 
-  if (isAdminPath && !isLoginPath && !user) {
+  if ((isAccountAdminPath || isEventAdminPath) && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin/login'
     return NextResponse.redirect(url)
@@ -36,3 +38,4 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse
 }
+
