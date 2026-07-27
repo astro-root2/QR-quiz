@@ -16,6 +16,8 @@ export function ButtonsAdminClient({ eventId }: { eventId: string }) {
   const [loading, setLoading] = useState(true)
   const [namesInput, setNamesInput] = useState('')
   const [zipLoading, setZipLoading] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingValue, setEditingValue] = useState('')
 
   async function load() {
     setLoading(true)
@@ -80,6 +82,21 @@ export function ButtonsAdminClient({ eventId }: { eventId: string }) {
     }
   }
 
+  async function renameButton(id: string) {
+    const trimmed = editingValue.trim()
+    if (!trimmed) {
+      setEditingId(null)
+      return
+    }
+    await fetch(`/api/e/${eventId}/buttons/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location_name: trimmed }),
+    })
+    setEditingId(null)
+    await load()
+  }
+
   const unusedCount = buttons.filter((b) => b.status === 'unused').length
   const usedCount = buttons.filter((b) => b.status === 'used').length
 
@@ -141,7 +158,32 @@ export function ButtonsAdminClient({ eventId }: { eventId: string }) {
         <tbody>
           {buttons.map((b) => (
             <tr key={b.id} className="border-b">
-              <td className="py-2">{b.location_name}</td>
+              <td className="py-2">
+                {editingId === b.id ? (
+                  <input
+                    autoFocus
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    onBlur={() => renameButton(b.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') renameButton(b.id)
+                      if (e.key === 'Escape') setEditingId(null)
+                    }}
+                    className="border rounded px-2 py-1 bg-transparent w-32"
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditingId(b.id)
+                      setEditingValue(b.location_name)
+                    }}
+                    className="underline decoration-dotted text-left"
+                    title="クリックして名前を変更"
+                  >
+                    {b.location_name}
+                  </button>
+                )}
+              </td>
               <td className="py-2 font-mono text-sm">{b.code}</td>
               <td className="py-2">{b.status === 'used' ? '使用済み' : '未使用'}</td>
               <td className="py-2">{b.players?.name ?? '-'}</td>

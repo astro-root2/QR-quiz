@@ -48,14 +48,23 @@ export default async function AdminEventsPage({
         </p>
       )}
 
-      <form action={createEvent} className="mt-6 flex gap-2 max-w-md">
+      <form action={createEvent} className="mt-6 flex flex-wrap gap-2 max-w-md items-start">
         <input
           name="name"
           type="text"
           required
           maxLength={50}
           placeholder="新しい大会名（例: 第3回社内クイズ大会）"
-          className="flex-1 border rounded px-3 py-2 bg-transparent"
+          className="flex-1 min-w-[200px] border rounded px-3 py-2 bg-transparent"
+        />
+        <input
+          name="button_count"
+          type="number"
+          min={0}
+          max={200}
+          defaultValue={10}
+          className="w-24 border rounded px-3 py-2 bg-transparent"
+          title="ボタン数（後から個別に名前を変更できる）"
         />
         <button
           type="submit"
@@ -64,6 +73,9 @@ export default async function AdminEventsPage({
           作成
         </button>
       </form>
+      <p className="text-xs text-gray-500 mt-1 max-w-md">
+        右の数字はボタン数。作成時に「ボタン1」「ボタン2」…として自動生成される。名前はあとで管理画面から変更できる。
+      </p>
 
       <ul className="mt-8 space-y-3 max-w-md">
         {(events ?? []).map((e) => (
